@@ -5,51 +5,589 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BRN IF BALAI BAHASA KALIMANTAN TENGAH</title>
+
     <link rel="icon"
         href="https://raw.githubusercontent.com/brn-qa/logo/refs/heads/main/Rezki.png"
         type="image/x-icon">
+
     <style>
+        :root {
+            --cyan: #00f7ff;
+            --blue: #2f7bff;
+            --purple: #8b5cf6;
+            --pink: #ff2bd6;
+            --dark: #020617;
+            --panel: rgba(2, 12, 27, 0.78);
+            --line: rgba(0, 247, 255, 0.55);
+        }
+
         html,
         body {
             margin: 0;
             padding: 0;
             height: 100%;
             overflow: hidden;
-            font-family: sans-serif;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #020617;
         }
 
         .iframe-container {
             position: relative;
             width: 100%;
             height: 100vh;
+            background: #020617;
         }
 
         iframe {
             width: 100%;
             height: 100%;
             border: none;
+            opacity: 1;
         }
 
-        .loader {
+        /* =========================
+           CYBERPUNK LOADER
+        ========================== */
+
+        .loader-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 99;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(0, 247, 255, 0.18), transparent 28%),
+                radial-gradient(circle at 80% 30%, rgba(255, 43, 214, 0.14), transparent 30%),
+                radial-gradient(circle at 50% 90%, rgba(47, 123, 255, 0.20), transparent 35%),
+                linear-gradient(135deg, #020617 0%, #050816 55%, #020617 100%);
+            overflow: hidden;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        .loader-overlay.hide {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .loader-overlay::before {
+            content: "";
+            position: absolute;
+            inset: -50%;
+            background-image:
+                linear-gradient(rgba(0, 247, 255, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 247, 255, 0.08) 1px, transparent 1px);
+            background-size: 44px 44px;
+            transform: perspective(700px) rotateX(62deg);
+            animation: gridMove 3.8s linear infinite;
+            opacity: 0.65;
+        }
+
+        .loader-overlay::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(255,255,255,0.035) 0px,
+                rgba(255,255,255,0.035) 1px,
+                transparent 1px,
+                transparent 6px
+            );
+            mix-blend-mode: screen;
+            pointer-events: none;
+            opacity: 0.35;
+        }
+
+        @keyframes gridMove {
+            from { transform: perspective(700px) rotateX(62deg) translateY(0); }
+            to { transform: perspective(700px) rotateX(62deg) translateY(44px); }
+        }
+
+        .loader-card {
+            position: relative;
+            width: min(900px, 92vw);
+            padding: 34px 34px 30px;
+            border: 1px solid rgba(0, 247, 255, 0.35);
+            border-radius: 28px;
+            background: linear-gradient(145deg, rgba(2, 12, 27, 0.86), rgba(15, 23, 42, 0.62));
+            box-shadow:
+                0 0 24px rgba(0, 247, 255, 0.20),
+                inset 0 0 28px rgba(0, 247, 255, 0.06);
+            backdrop-filter: blur(16px);
+            overflow: hidden;
+        }
+
+        .loader-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -70%;
+            width: 70%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 247, 255, 0.13), transparent);
+            animation: panelSweep 2.6s ease-in-out infinite;
+        }
+
+        @keyframes panelSweep {
+            0% { left: -70%; }
+            55% { left: 110%; }
+            100% { left: 110%; }
+        }
+
+        .loader-header {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .loader-title {
+            color: #e0fbff;
+            font-size: clamp(1.1rem, 2.5vw, 1.65rem);
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow:
+                0 0 10px rgba(0, 247, 255, 0.75),
+                2px 0 rgba(255, 43, 214, 0.45),
+                -2px 0 rgba(47, 123, 255, 0.45);
+            animation: glitchTitle 2.8s infinite;
+        }
+
+        @keyframes glitchTitle {
+            0%, 92%, 100% { transform: translate(0); }
+            93% { transform: translate(1px, -1px); }
+            94% { transform: translate(-2px, 1px); }
+            95% { transform: translate(2px, 0); }
+            96% { transform: translate(0); }
+        }
+
+        .loader-subtitle {
+            margin-top: 8px;
+            color: rgba(224, 251, 255, 0.72);
+            font-size: 0.88rem;
+            letter-spacing: 1px;
+        }
+
+        .connection-map {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            align-items: center;
+            gap: 18px;
+            margin: 26px 0 24px;
+        }
+
+        .node {
+            position: relative;
+            height: 170px;
+            border-radius: 24px;
+            border: 1px solid rgba(0, 247, 255, 0.25);
+            background: rgba(2, 12, 27, 0.54);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 18px rgba(0, 247, 255, 0.05);
+        }
+
+        .node-icon {
+            width: 76px;
+            height: 76px;
+            border-radius: 22px;
+            display: grid;
+            place-items: center;
+            color: var(--cyan);
+            border: 1px solid rgba(0, 247, 255, 0.50);
+            box-shadow:
+                0 0 18px rgba(0, 247, 255, 0.25),
+                inset 0 0 20px rgba(0, 247, 255, 0.10);
+            font-size: 2rem;
+            animation: nodePulse 1.8s ease-in-out infinite;
+        }
+
+        .node:nth-child(2) .node-icon {
+            border-radius: 50%;
+            width: 92px;
+            height: 92px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .node:nth-child(2) .node-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            filter: drop-shadow(0 0 8px rgba(0, 247, 255, 0.75));
+        }
+
+        @keyframes nodePulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 14px rgba(0, 247, 255, 0.18);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 26px rgba(0, 247, 255, 0.48);
+            }
+        }
+
+        .node-label {
+            margin-top: 14px;
+            color: #dffbff;
+            font-weight: 700;
+            font-size: 0.88rem;
+            letter-spacing: 1px;
+        }
+
+        .node-status {
+            margin-top: 6px;
+            color: rgba(0, 247, 255, 0.72);
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+        }
+
+        .data-line {
+            position: absolute;
+            top: 50%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--line), transparent);
+            transform: translateY(-50%);
+            z-index: 3;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .line-1 {
+            left: 29%;
+            width: 15%;
+        }
+
+        .line-2 {
+            right: 29%;
+            width: 15%;
+        }
+
+        .data-line::after {
+            content: "";
+            position: absolute;
+            top: -4px;
+            left: -20%;
+            width: 26px;
+            height: 10px;
+            border-radius: 999px;
+            background: var(--cyan);
+            box-shadow: 0 0 18px var(--cyan);
+            animation: dataMove 1.2s linear infinite;
+        }
+
+        .line-2::after {
+            animation-delay: 0.35s;
+        }
+
+        @keyframes dataMove {
+            from { left: -20%; }
+            to { left: 120%; }
+        }
+
+        .radar-ring {
+            position: absolute;
+            width: 138px;
+            height: 138px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 247, 255, 0.25);
+            animation: radarSpin 2.8s linear infinite;
+        }
+
+        .radar-ring::before {
+            content: "";
+            position: absolute;
+            inset: 13px;
+            border-radius: 50%;
+            border: 1px dashed rgba(255, 43, 214, 0.32);
+        }
+
+        .radar-ring::after {
+            content: "";
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 1.2rem;
-            color: #666;
-            z-index: 10;
+            width: 50%;
+            height: 1px;
+            background: linear-gradient(90deg, var(--cyan), transparent);
+            transform-origin: left center;
+        }
+
+        @keyframes radarSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        .terminal {
+            position: relative;
+            z-index: 2;
+            border: 1px solid rgba(0, 247, 255, 0.24);
+            border-radius: 18px;
+            background: rgba(0, 0, 0, 0.32);
+            padding: 16px 18px;
+            color: rgba(224, 251, 255, 0.84);
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.82rem;
+            line-height: 1.65;
+            box-shadow: inset 0 0 18px rgba(0, 247, 255, 0.05);
+            min-height: 78px;
+        }
+
+        .terminal span {
+            color: var(--cyan);
+            text-shadow: 0 0 8px rgba(0, 247, 255, 0.55);
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 14px;
+            background: var(--cyan);
+            margin-left: 4px;
+            vertical-align: middle;
+            animation: blink 0.75s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .progress-wrap {
+            position: relative;
+            z-index: 2;
+            margin-top: 18px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            color: rgba(224, 251, 255, 0.70);
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 9px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(0, 247, 255, 0.22);
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--cyan), var(--blue), var(--pink));
+            box-shadow: 0 0 18px rgba(0, 247, 255, 0.70);
+            animation: progressLoad 6s ease-in-out infinite;
+        }
+
+        @keyframes progressLoad {
+            0% { width: 8%; }
+            25% { width: 36%; }
+            55% { width: 68%; }
+            80% { width: 88%; }
+            100% { width: 96%; }
+        }
+
+        .corner {
+            position: absolute;
+            width: 34px;
+            height: 34px;
+            border-color: var(--cyan);
+            opacity: 0.85;
+        }
+
+        .corner.tl {
+            top: 16px;
+            left: 16px;
+            border-top: 2px solid;
+            border-left: 2px solid;
+        }
+
+        .corner.tr {
+            top: 16px;
+            right: 16px;
+            border-top: 2px solid;
+            border-right: 2px solid;
+        }
+
+        .corner.bl {
+            bottom: 16px;
+            left: 16px;
+            border-bottom: 2px solid;
+            border-left: 2px solid;
+        }
+
+        .corner.br {
+            bottom: 16px;
+            right: 16px;
+            border-bottom: 2px solid;
+            border-right: 2px solid;
+        }
+
+        @media (max-width: 760px) {
+            .loader-card {
+                padding: 26px 18px;
+            }
+
+            .connection-map {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .node {
+                height: 122px;
+            }
+
+            .node-icon {
+                width: 58px;
+                height: 58px;
+                font-size: 1.45rem;
+            }
+
+            .node:nth-child(2) .node-icon {
+                width: 68px;
+                height: 68px;
+            }
+
+            .data-line {
+                display: none;
+            }
+
+            .radar-ring {
+                width: 104px;
+                height: 104px;
+            }
+
+            .terminal {
+                font-size: 0.72rem;
+            }
         }
     </style>
 </head>
 
 <body>
     <div class="iframe-container">
-        <div class="loader" id="loader">Selamat Datang di BRN IF...</div>
+
+        <!-- CYBERPUNK LOADING -->
+        <div class="loader-overlay" id="loader">
+            <div class="loader-card">
+                <div class="corner tl"></div>
+                <div class="corner tr"></div>
+                <div class="corner bl"></div>
+                <div class="corner br"></div>
+
+                <div class="loader-header">
+                    <div class="loader-title">BRN IF SYSTEM CONNECTION</div>
+                    <div class="loader-subtitle">Menghubungkan perangkat ke web gateway dan cloud server...</div>
+                </div>
+
+                <div class="connection-map">
+                    <div class="data-line line-1"></div>
+                    <div class="data-line line-2"></div>
+
+                    <div class="node">
+                        <div class="node-icon">⌁</div>
+                        <div class="node-label">PERANGKAT</div>
+                        <div class="node-status">CLIENT NODE ACTIVE</div>
+                    </div>
+
+                    <div class="node">
+                        <div class="radar-ring"></div>
+                        <div class="node-icon">
+                            <img src="https://raw.githubusercontent.com/brn-qa/logo/refs/heads/main/Rezki.png" alt="BRN Logo">
+                        </div>
+                        <div class="node-label">BRN WEB GATEWAY</div>
+                        <div class="node-status">AUTHENTICATING...</div>
+                    </div>
+
+                    <div class="node">
+                        <div class="node-icon">☁</div>
+                        <div class="node-label">CLOUD SERVER</div>
+                        <div class="node-status">SYNC CHANNEL READY</div>
+                    </div>
+                </div>
+
+                <div class="terminal">
+                    <div>&gt; <span id="terminalText">Initializing BRN Integrity Flow...</span><span class="cursor"></span></div>
+                    <div>&gt; Secure tunnel: <span>ONLINE</span></div>
+                    <div>&gt; Data stream: <span>CONNECTING</span></div>
+                </div>
+
+                <div class="progress-wrap">
+                    <div class="progress-label">
+                        <span>LOADING SYSTEM</span>
+                        <span id="percentText">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- IFRAME SYSTEM -->
         <iframe
-            src="https://script.google.com/macros/s/AKfycbx2aC4PphblkWuRjW7YOdOUnKwDW06SIc7m4Qg3T10_6_cKphbNJrKSjB3cnom4UXvn_w/exec"
-            title="BRN IF BALAI BAHASA KALIMANTAN TENGAH" onload="document.getElementById('loader').style.display='none';" allowfullscreen>
+            src="https://script.google.com/macros/s/AKfycbwja5qaZuqGmHYI971__WBX72lk7Z5UQikDP6irbXxD092MK571XKkECNCeCCc2nMH0fQ/exec"
+            title="BRN IF BALAI BAHASA KALIMANTAN TENGAH"
+            onload="hideLoader()"
+            allowfullscreen>
         </iframe>
     </div>
+
+    <script>
+        const terminalText = document.getElementById("terminalText");
+        const percentText = document.getElementById("percentText");
+
+        const messages = [
+            "Initializing BRN Integrity Flow...",
+            "Scanning client device protocol...",
+            "Building encrypted web gateway tunnel...",
+            "Synchronizing with BRN cloud server...",
+            "Validating system interface...",
+            "Preparing dashboard environment..."
+        ];
+
+        let messageIndex = 0;
+        let percent = 0;
+        let iframeLoaded = false;
+
+        setInterval(() => {
+            messageIndex = (messageIndex + 1) % messages.length;
+            terminalText.textContent = messages[messageIndex];
+        }, 1300);
+
+        const percentInterval = setInterval(() => {
+            if (!iframeLoaded && percent < 96) {
+                percent += Math.floor(Math.random() * 4) + 1;
+                if (percent > 96) percent = 96;
+                percentText.textContent = percent + "%";
+            }
+        }, 280);
+
+        function hideLoader() {
+            iframeLoaded = true;
+            percentText.textContent = "100%";
+            terminalText.textContent = "Connection established. Launching BRN IF dashboard...";
+
+            setTimeout(() => {
+                const loader = document.getElementById("loader");
+                loader.classList.add("hide");
+                clearInterval(percentInterval);
+            }, 650);
+        }
+    </script>
 </body>
 
 </html>
